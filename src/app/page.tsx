@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { db } from "@/lib/firebase";
-import { getSongs } from "@/lib/firestore";
+import { getSongs, deleteSong } from "@/lib/firestore";
 import { useEffect, useState } from "react";
 import {Song} from "@/types"
 
@@ -9,12 +9,41 @@ export default function Home() {
   const [songs, setSongs] = useState([] as Song[])
 
   useEffect(() => {
-    
     getSongs(db).then( (docSongs: any) => {
       console.log("teste ##: " + JSON.stringify(docSongs))
-      setSongs( docSongs.map( (docSong: any) => docSong.song ) )
+      //const songs: Song[] = getSongsFromDocs(docSongs)
+      setSongs( sortSongList(docSongs) ) 
     })
   }, [])
+
+
+  const sortSongList = (songList: Song[]): any => {
+    const sortedList = songList.map( (entry, index) => {
+      const order = entry.weight * index
+      return {id: entry.id, order: order}
+    }).sort( (a, b) => {
+      if(a.order < b.order) return -1;
+      return 1;
+    })
+
+    console.log("Sort: " + JSON.stringify(sortedList))
+
+    const songListAux: any = sortedList.map( (entry) => {
+      return songList.find( (input) => {
+        if (input.id == entry.id) return input;
+      });
+    }) 
+
+    console.log("AUx: " + JSON.stringify(songListAux))
+    return songListAux;
+  }
+
+  const getSongsFromDocs = ( (docSongs: any) : Song[] => {
+    return docSongs.map( (input: any) => {
+      delete input.id
+      return input
+    })
+  })
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -41,7 +70,7 @@ export default function Home() {
           <h2>Song List</h2>
           <ul>
             {songs.map((item, index) => (
-              <li key={index}>{item.title} - {item.clientOrder}</li> // Always add a unique key!
+              <li key={index} onClick={ () => deleteSong(db, item.id) } >{item.title} - {item.clientId}</li> // Always add a unique key!
             ))}
           </ul>
         </div>

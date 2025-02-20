@@ -1,6 +1,6 @@
 // pages/api/firestore.js
 import { db } from "@/lib/firebase";
-import { collection, addDoc, getDocs, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs,  deleteDoc, orderBy, query } from "firebase/firestore";
 
 export default async function handler(req, res, collectionName) {
   const clientsRef = collection(db, collectionName);
@@ -20,15 +20,28 @@ export default async function handler(req, res, collectionName) {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
+  } else if (req.method === "DELETE") {
+
   } else {
     res.status(405).json({ message: "Method Not Allowed" });
   }
 }
 
 export async function getSongs(db) {
-	const docRef = collection(db, "songs");
-	const snapshot = await getDocs(docRef)
+	const songsRef = collection(db, "songs");
+  const queryAux = query(songsRef, orderBy("createdAt", "desc"))
+
+	const snapshot = await getDocs(queryAux)
     const docSnap = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     console.log(JSON.stringify(docSnap))
 	return docSnap
+}
+
+export async function deleteSong(db, songId) {
+	const songsRef = collection(db, "songs");
+
+  const snapshot = await deleteDoc(songsRef, songId)
+
+  console.log(JSON.stringify(snapshot))
+
 }
