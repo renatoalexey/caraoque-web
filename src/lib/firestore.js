@@ -1,6 +1,6 @@
 // pages/api/firestore.js
 import { db } from "@/lib/firebase";
-import { collection, addDoc, getDocs,  deleteDoc, orderBy, query } from "firebase/firestore";
+import { collection, doc, addDoc, getDocs,  deleteDoc, orderBy, query } from "firebase/firestore";
 
 export default async function handler(req, res, collectionName) {
   const clientsRef = collection(db, collectionName);
@@ -27,7 +27,7 @@ export default async function handler(req, res, collectionName) {
   }
 }
 
-export async function getSongs(db) {
+export async function getSongs() {
 	const songsRef = collection(db, "songs");
   const queryAux = query(songsRef, orderBy("createdAt", "desc"))
 
@@ -37,8 +37,8 @@ export async function getSongs(db) {
 	return docSnap
 }
 
-export async function deleteSong(db, songId) {
-	const songsRef = collection(db, "songs");
+export async function deleteSong(songId) {
+	const songsRef = doc(db, "songs");
 
   const snapshot = await deleteDoc(songsRef, songId)
 

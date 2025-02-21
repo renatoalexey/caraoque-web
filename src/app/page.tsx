@@ -9,7 +9,7 @@ export default function Home() {
   const [songs, setSongs] = useState([] as Song[])
 
   useEffect(() => {
-    getSongs(db).then( (docSongs: any) => {
+    getSongs().then( (docSongs: any) => {
       console.log("teste ##: " + JSON.stringify(docSongs))
       //const songs: Song[] = getSongsFromDocs(docSongs)
       setSongs( sortSongList(docSongs) ) 
@@ -38,13 +38,6 @@ export default function Home() {
     return songListAux;
   }
 
-  const getSongsFromDocs = ( (docSongs: any) : Song[] => {
-    return docSongs.map( (input: any) => {
-      delete input.id
-      return input
-    })
-  })
-
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -70,7 +63,10 @@ export default function Home() {
           <h2>Song List</h2>
           <ul>
             {songs.map((item, index) => (
-              <li key={index} onClick={ () => deleteSong(db, item.id) } >{item.title} - {item.clientId}</li> // Always add a unique key!
+              <li key={index} onClick={ () => deleteSong(item.id) }> 
+                <a href={`https://www.youtube.com/watch?v=${item.videoId}`} 
+                  target="_blank" rel="noopener noreferrer">  {item.title} </a> 
+              </li> // Always add a unique key!
             ))}
           </ul>
         </div>
