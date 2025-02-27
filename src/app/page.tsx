@@ -1,32 +1,60 @@
 "use client";
 import Image from "next/image";
-import { db } from "@/lib/firebase";
-import { getSongs, deleteSong } from "@/lib/firestore";
+import { getSongs, deleteSong, getClients, getNextSongs, addNextSong, deleteNextSong } from "@/lib/firestore";
 import { useEffect, useState } from "react";
-import {Song} from "@/types"
+import {Client, Song} from "@/types"
+import './ItemList.css';
 
 export default function Home() {
   const [songs, setSongs] = useState([] as Song[])
+  const [nextSongs, setNextSongs] = useState([] as Song[]);
+  const [clients, setClients] = useState([] as Client[])
 
   useEffect(() => {
+    console.log("Songs ###: " + songs)
     getSongs().then( (docSongs: any) => {
-      console.log("teste ##: " + JSON.stringify(docSongs))
       //const songs: Song[] = getSongsFromDocs(docSongs)
-      setSongs( sortSongList(docSongs) ) 
+      teste( docSongs ) 
+    })
+
+    console.log("Songs ###: " + songs)
+    getClients().then( (docClients: any) => {
+      //const songs: Song[] = getSongsFromDocs(docSongs)
+      setClients( docClients ) 
     })
   }, [])
 
+  const teste = (docSongs: Song[]) => {
+
+    getNextSongs().then( (nextSongsTemp: any) => {
+
+      const songsAfter2 = sortSongList(docSongs)
+
+      while(nextSongsTemp.length < 5 && songsAfter2.length > 0) {
+        const songAux = songsAfter2.shift() 
+        nextSongsTemp.push(songAux!)
+        deleteSong(songAux.id)
+        delete songAux.id
+        addNextSong(songAux)
+      }
+
+      setNextSongs(nextSongsTemp)
+      setSongs(songsAfter2)
+      console.log("Songs after Y: " + JSON.stringify(songs))
+    })
+
+    //const songsAfter: any = docSongs.filter( (input) =>  nextSongs.find( (ns: any) => ns.id == input.id ) == undefined  )    
+  }
 
   const sortSongList = (songList: Song[]): any => {
     const sortedList = songList.map( (entry, index) => {
-      const order = entry.weight * index
+      const order = entry.weight * (index + 1)
       return {id: entry.id, order: order}
     }).sort( (a, b) => {
       if(a.order < b.order) return -1;
       return 1;
     })
 
-    console.log("Sort: " + JSON.stringify(sortedList))
 
     const songListAux: any = sortedList.map( (entry) => {
       return songList.find( (input) => {
@@ -34,38 +62,36 @@ export default function Home() {
       });
     }) 
 
-    console.log("AUx: " + JSON.stringify(songListAux))
     return songListAux;
   }
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-        <div>
-          <h2>Song List</h2>
+        
+        
+        <div className="list-container">
+          <h2 className="list-title">Próximas 5 músicas </h2>
+          <ul >
+            {nextSongs.map((item, index) => (
+              <li className="list-item" key={index}> 
+              <span style={ {marginRight: '15px'} }>{ clients.find( (client: Client) => client.id == item.clientId )?.name} </span>
+
+                <a href={`https://www.youtube.com/watch?v=${item.videoId}`} onClick={ () => deleteNextSong(item.id) }
+                  target="_blank" rel="noopener noreferrer">  {item.title} </a> 
+              </li> // Always add a unique key!
+            ))}
+          </ul>
+        </div>
+         <div className="list-container">
+          <h2 className="list-title">Lista de músicas </h2>
           <ul>
             {songs.map((item, index) => (
-              <li key={index} onClick={ () => deleteSong(item.id) }> 
-                <a href={`https://www.youtube.com/watch?v=${item.videoId}`} 
-                  target="_blank" rel="noopener noreferrer">  {item.title} </a> 
+              <li className="list-item" key={index}> 
+              
+              <span style={ {marginRight: '15px'} }>{ clients.find( (client: Client) => client.id == item.clientId )?.name} </span>
+                <a style={{ pointerEvents: 'none' }} href={`https://www.youtube.com/watch?v=${item.videoId}`}
+                  rel="noopener noreferrer">  {item.title} </a> 
               </li> // Always add a unique key!
             ))}
           </ul>

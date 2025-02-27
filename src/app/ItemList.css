@@ -1,0 +1,78 @@
+/* ItemList.css */
+.list-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.list-title {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.list-item:hover {
+  transform: translateY(-5px);
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.item-description {
+  color: #555;
+  margin-top: 5px;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.item-date {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.item-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.item-button:hover {
+  background-color: #0056b3;
+}
