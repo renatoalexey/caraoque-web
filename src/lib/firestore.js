@@ -54,6 +54,7 @@ export const addNextSong = async (song) => {
   try {
     await addDoc(collection(db, "nextSongs"), {
       ...song,
+      nextFive: false
     });
     console.log("Canção adicionada!");
   } catch (error) {
